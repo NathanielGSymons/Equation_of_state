@@ -16,24 +16,24 @@ with open('input.txt', 'r') as f:
         data.append(floats)
 fullData = np.array(data)
 
-# assigns first column to v, and second column to e, respectively
+# Assigns first column to v, and second column to e, respectively
 v = fullData[:,0]
 e = fullData[:,1]
 
-#make a vector to evaluate fits on with a lot of points so it looks smooth
+# Make a vector to evaluate fits on with a lot of points so it looks smooth
 vfit = np.linspace(min(v),max(v),100)
 
-### fit a parabola to the data
+# Fit a parabola to the data
 # y = ax^2 + bx + c
 a,b,c = polyfit(v,e,2) #this is from pylab
 
-#now here are our initial guesses.
+# Initial guesses.
 v0 = -b/(2*a)
 e0 = a*v0**2 + b*v0 + c
 b0 = 2*a*v0
 bP = 2
 
-#now we have to create the equation of state function
+# Create the equation of state function
 def BirchMurnaghan(parameters,vol):
 
     E0 = parameters[0]
@@ -44,7 +44,7 @@ def BirchMurnaghan(parameters,vol):
     E = E0 + (((9*V0*B0)/16)*(((((V0/vol)**(2/3))-1)**3)*BP + ((((V0/vol)**(0.666))-1)**2)*(6-(4*((V0/vol)**(2/3))))))
     return E
 
-# and we define an objective function that will be minimized
+# Define an objective function that will be minimized
 def objective(pars,y,x):
     #we will minimize this function
     err =  y - BirchMurnaghan(pars,x)
@@ -54,7 +54,7 @@ x0 = [e0, b0, bP, v0] #initial guesses in the same order used in the Murnaghan f
 
 murnpars, ier = leastsq(objective, x0, args=(e,v)) #this is from scipy
 
-#now we make a figure summarizing the results
+# Create a figure summarizing the results
 plot(v,e,'ro')
 plot(vfit, a*vfit**2 + b*vfit + c,'--',label='parabolic fit')
 plot(vfit, BirchMurnaghan(murnpars,vfit), label='Birch-Murnaghan fit')
@@ -62,7 +62,7 @@ xlabel('Volume ($\AA^3$)')
 ylabel('Ground state energy (eV)')
 legend(loc='best')
 
-#add some text to the figure in figure coordinates
+# Add text to the figure in figure coordinates
 ax = gca()
 # text(0.4,0.7,'V0 = %1.9f $\AA^3$' % murnpars[3],
 #      transform = ax.transAxes)
